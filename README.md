@@ -5,6 +5,7 @@ A Docker container to run a DNS server as master or slave
 Brief description:
 - The image uses Ubuntu:20.04 LTS and Bind 9
 - The configuration file `named.conf` and all zone files are in the same directory `/var/named` to simplify volume mapping
+- Non-privileged user id `named` is used to run the service
 - DNS/Bind configuration is not in scope of this document. Check articles like [Implementing DNS server using BIND](https://linuxtechlab.com/configuring-dns-server-using-bind/) , [Deploying DNSSEC](https://blog.apnic.net/2019/05/23/how-to-deploying-dnssec-with-bind-and-ubuntu-server/)
 
 Usage scenarios:

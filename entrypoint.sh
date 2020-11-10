@@ -79,6 +79,7 @@ get_container_details(){
 
         uname -a
         ip address
+	id named
         echo '---------------------------------------------------------------------'
     fi
 }
