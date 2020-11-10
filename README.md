@@ -24,7 +24,7 @@ docker run -d \
 etaylashev/dns
 ```
 
-- Flag VERBOSE=1 provides more details into Docker logs from entrypoint.sh
+- Flag **VERBOSE=1** provides more details into Docker logs from `entrypoint.sh`
 
 ### Run scenario 2
 ```
