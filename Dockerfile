@@ -4,8 +4,6 @@ RUN apk update && apk add  bind bind-tools bind-libs \
 	&& touch  /var/bind/named.conf \
 	&& chmod +r /var/bind/named.conf
 
-#	&& mkdir /var/bind \
-
 LABEL maintainer="Eugene Taylashev" \
   url="https://github.com/eugene-taylashev/docker-dns" \
   source="https://hub.docker.com/repository/docker/etaylashev/dns" \
@@ -24,5 +22,4 @@ ENV VERBOSE=1
 
 COPY --chown=named:named entrypoint.sh /entrypoint.sh
 
-#CMD   named -u named -4 -g -c /var/bind/named.conf
 ENTRYPOINT ["/entrypoint.sh"]
