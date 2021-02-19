@@ -1,32 +1,28 @@
-FROM ubuntu:20.04
-RUN apt update \
-  && apt upgrade -y \
-  && apt install -y bind9 bind9utils p7zip-full wget \
-  && rm -r /var/lib/apt/lists/*
+FROM alpine:latest
+RUN apk update && apk add  bind bind-tools bind-libs \
+	&& chown named:named /var/bind \
+	&& touch  /var/bind/named.conf \
+	&& chmod +r /var/bind/named.conf
 
-#-- Create system user
-RUN useradd -M -l -r -s /usr/sbin/nologin named
-
-#-- Create directories
-RUN mkdir /var/named
-RUN chown named:named /var/named
+#	&& mkdir /var/bind \
 
 LABEL maintainer="Eugene Taylashev" \
   url="https://github.com/eugene-taylashev/docker-dns" \
   source="https://hub.docker.com/repository/docker/etaylashev/dns" \
   title="Bind9 DNS server" \
-  description="Run a master or slave DNS as a container using the Bind9 name server software on Ubuntu"
+  description="Run a simple DNS server as a container using the Bind9 name server software on Alpine"
 
 #-- ports exposed
 EXPOSE 53/tcp
 EXPOSE 53/udp
 
-#-- default environment variables
-ENV URL_CONF=none
-ENV SKEY=none
-ENV VERBOSE=0
+#-- Volume with configuration file and zone files
+VOLUME "/var/bind"
 
-#-- copy default execution script
+#-- default environment variables
+ENV VERBOSE=1
+
 COPY --chown=named:named entrypoint.sh /entrypoint.sh
 
+#CMD   named -u named -4 -g -c /var/bind/named.conf
 ENTRYPOINT ["/entrypoint.sh"]

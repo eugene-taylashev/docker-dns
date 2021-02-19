@@ -1,17 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 #==============================================================================
 # Entry point script for a Docker container to start a Bind9 DNS server
 #==============================================================================
-set -e
+
 #=============================================================================
 #
 #  Variable declarations
 #
 #=============================================================================
-SVER="20201104"     #-- Updated by Eugene Taylashev
+SVER="20210219"     #-- Updated by Eugene Taylashev
 #VERBOSE=1          #-- 1 - be verbose flag
-DIR_DNS=/var/named
-DIR_TMP=/tmp
+DIR_DNS=/var/bind
 FCFG=${DIR_DNS}/named.conf  #-- configuration file is in the same directory as zone files
 
 #=============================================================================
@@ -71,11 +70,6 @@ get_container_details(){
             echo "Alpine $OS_REL"
             apk -v info | sort
         fi
-        #-- Ubuntu and other
-        if [ -f /etc/os-release ] ; then
-            sed -ne 's/PRETTY_NAME=//p' /etc/os-release
-            apt list --installed 
-        fi
 
         uname -a
         ip address
@@ -97,39 +91,46 @@ dlog "[ok] - starting entrypoint.sh ver $SVER"
 get_container_details
 
 
-dlog "URL:${URL_CONF}"
-
-#-- Check configuration URL
-if [ "${URL_CONF}" == "none" ]; then
-
-    #-- Check if configuration and zone files are mounted
-    if [ ! - s ${FCFG} ] ; then
-        derr "No configuration and Zone files"
-        derr "Aborting..."
-        derr "[not ok] - finish of entrypoint.sh"
-        exit 1
-    fi
-else
-
-    #-- Get configuration file
-    wget -q --no-check-certificate -O ${DIR_TMP}/conf.7z ${URL_CONF}
-    is_good "[ok] - downloaded Bind DNS configuration and zone files" \
-            "[not ok] - downloading Bind DNS configuration and zone files"
-
-    #-- Unpack configuration file with 7zip
-    7z e -o${DIR_DNS} -p${SKEY} ${DIR_TMP}/conf.7z
-    is_good "[ok] - unpacked DNS configuration and zone files" \
-            "[not ok] - unpacking DNS configuration and zone files"
-
-    if [ $VERBOSE -eq 1 ] ; then
-        echo "List of files in ${DIR_DNS}:"
-        ls -l ${DIR_DNS}/
-    fi
-fi 
-
 #-- Adjust permission
 chown -R named:named ${DIR_DNS}
 
+#-- Delete old pid file
+if [ -f ${DIR_DNS}/named.pid ] ; then
+    rm -f ${DIR_DNS}/named.pid
+fi
+
+#-- Verify that a configuration file exists, or create a simple one
+if [ ! -s ${FCFG} ] ; then
+    cat > ${FCFG} <<EOF
+
+options {
+    directory "/var/bind/";
+    pid-file "/var/bind/named.pid";
+
+    //-- IPv4 will work on all interfaces
+    listen-on port 53 { any;  };
+
+    //-- Disable IPv6:
+    listen-on-v6 port 53 { none; };
+
+    //-- Default settings, will be adjusted per zone
+    allow-query { any; };
+    allow-recursion { any; };
+    allow-transfer { none; };
+    allow-update { none; };
+
+    //-- Forwarding options
+    recursion yes;                 # enables resursive queries
+    forwarders {
+        8.8.8.8;
+        8.8.4.4;
+    };
+
+    //-- DNSSEC
+    dnssec-validation auto;
+};
+EOF
+fi
 
 #-- check configuration 
 dlog "       Checking configuration in $FCFG"
@@ -139,5 +140,6 @@ is_good "[ok] - Bind DNS configuration in $FCFG is good" \
 
 #-- start named with given config
 dlog "[ok] - strating Bind9 DNS: "
-/usr/sbin/named -g -u named -c $FCFG
+/usr/sbin/named -4 -g -u named -c $FCFG
 derr "[not ok] - finish of entrypoint.sh"
+
