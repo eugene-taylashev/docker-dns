@@ -8,7 +8,10 @@ IMG_NAME=dns-master      #-- container/image name
 VERBOSE=1                #-- 1 - be verbose flag
 SVER="20211103"
 
-source functions.sh #-- Use common functions
+#-- Check architecture
+[[ $(uname -m) =~ ^armv7 ]] && ARCH="armv7-" || ARCH=""
+
+source functions.sh      #-- Use common functions
 
 stop_container   $IMG_NAME
 remove_container $IMG_NAME
@@ -19,6 +22,6 @@ docker run -d \
   -p 5354:53/tcp \
   -v ./test-conf:/var/bind \
   -e VERBOSE=${VERBOSE} \
-etaylashev/dns
+etaylashev/dns:${ARCH}latest
 
 exit 0

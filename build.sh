@@ -2,8 +2,7 @@
 set -e
 
 #-- Check architecture
-ARCH=""
-[[ $(uname -m) =~ ^armv7 ]] && ARCH="armv7-"
+[[ $(uname -m) =~ ^armv7 ]] && ARCH="armv7-" || ARCH=""
 
 
 docker build --no-cache --rm \

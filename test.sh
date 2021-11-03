@@ -42,6 +42,10 @@ n=0  #-- count number of tests
 g=0  #-- count success
 b=0  #-- count failure
 
+#-- Check architecture
+[[ $(uname -m) =~ ^armv7 ]] && ARCH="armv7-" || ARCH=""
+
+
 #=============================================================================
 #
 #  MAIN()
@@ -196,7 +200,7 @@ docker run -d \
   -p 5354:53/tcp \
   -v ${DIR_DNS}:/var/bind \
   -e VERBOSE=1 \
-etaylashev/dns
+etaylashev/dns:${ARCH}latest
 is_critical "[ok] - started image ${IMG_NAME}" \
 "[not ok] - started image ${IMG_NAME}"
 
