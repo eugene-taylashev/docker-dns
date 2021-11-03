@@ -1,0 +1,14 @@
+$ORIGIN .
+$TTL 86400      ; 1 day
+test.case               IN SOA  ns1.test.case. admin.test.case. (
+                                20210230   ; serial
+                                3600       ; refresh (1 hour)
+                                1800       ; retry (30 minutes)
+                                604800     ; expire (1 week)
+                                86400      ; minimum (1 day)
+                                )
+                        NS      ns1.test.case.
+                        MX  5   mail.test.case.
+$ORIGIN test.case.
+ns1                     A       1.1.1.31
+mail                    A       1.1.1.32

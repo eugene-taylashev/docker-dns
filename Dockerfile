@@ -20,6 +20,6 @@ VOLUME "/var/bind"
 #-- default environment variables
 ENV VERBOSE=1
 
-COPY --chown=named:named entrypoint.sh /entrypoint.sh
+COPY --chown=named:named functions.sh entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]

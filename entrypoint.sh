@@ -13,72 +13,7 @@ SVER="20210219"     #-- Updated by Eugene Taylashev
 DIR_DNS=/var/bind
 FCFG=${DIR_DNS}/named.conf  #-- configuration file is in the same directory as zone files
 
-#=============================================================================
-#
-#  Function declarations
-#
-#=============================================================================
-#-----------------------------------------------------------------------------
-#  Output debugging/logging message
-#------------------------------------------------------------------------------
-dlog(){
-  MSG="$1"
-#  echo "$MSG" >>$FLOG
-  [ $VERBOSE -eq 1 ] && echo "$MSG"
-}
-# function dlog
-
-
-#-----------------------------------------------------------------------------
-#  Output error message
-#------------------------------------------------------------------------------
-derr(){
-  MSG="$1"
-#  echo "$MSG" >>$FLOG
-  echo "$MSG"
-}
-# function derr
-
-#-----------------------------------------------------------------------------
-#  Output good or bad message based on return status $?
-#------------------------------------------------------------------------------
-is_good(){
-    STATUS=$?
-    MSG_GOOD="$1"
-    MSG_BAD="$2"
-    
-    if [ $STATUS -eq 0 ] ; then
-        dlog "${MSG_GOOD}"
-    else
-        derr "${MSG_BAD}"
-    fi
-}
-# function is_good
-
-#-----------------------------------------------------------------------------
-#  Output important parametrs of the container 
-#------------------------------------------------------------------------------
-get_container_details(){
-    
-    if [ $VERBOSE -eq 1 ] ; then
-        echo '[ok] - getting container details:'
-        echo '---------------------------------------------------------------------'
-
-        #-- for Linux Alpine
-        if [ -f /etc/alpine-release ] ; then
-            OS_REL=$(cat /etc/alpine-release)
-            echo "Alpine $OS_REL"
-            apk -v info | sort
-        fi
-
-        uname -a
-        ip address
-	id named
-        echo '---------------------------------------------------------------------'
-    fi
-}
-# function get_container_details
-
+source /functions.sh #-- Use common functions
 
 #=============================================================================
 #
@@ -89,7 +24,7 @@ dlog '==========================================================================
 dlog "[ok] - starting entrypoint.sh ver $SVER"
 
 get_container_details
-
+id named  #-- get UID, GID
 
 #-- Adjust permission
 chown -R named:named ${DIR_DNS}
