@@ -143,7 +143,7 @@ remove_container(){
 get_container_details(){
 
     if [ $VERBOSE -eq 1 ] ; then
-        echo '[ok] - getting container details:'
+        dlog '[ok] - getting container details:'
         echo '---------------------------------------------------------------------'
 
         #-- for Linux Alpine
